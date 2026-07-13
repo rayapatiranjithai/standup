@@ -1,0 +1,6 @@
+{
+  "privacy_mode": "redact_pii",
+  "_help": {
+    "privacy_mode": "redact_pii (default) = mask secrets/PII in the rendered standup before showing it | raw = render verbatim. Only these two modes apply — standup is stateless and persists nothing, so prompt-analyzer's hashed/metadata_only modes do not exist here."
+  }
+}
