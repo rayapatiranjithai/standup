@@ -1,0 +1,3 @@
+.standup/*.local.json
+*.log
+.DS_Store
