@@ -1,0 +1,12 @@
+{
+  "name": "standup",
+  "description": "Assembles a copy-ready Yesterday/Today/Blockers standup from live git activity (and optional GitHub PRs). Fully local, stateless, no telemetry.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ranjith Rayapati",
+    "url": "https://github.com/rayapatiranjithai"
+  },
+  "homepage": "https://github.com/rayapatiranjithai/standup",
+  "repository": "https://github.com/rayapatiranjithai/standup",
+  "license": "MIT"
+}
