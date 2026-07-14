@@ -7,3 +7,4 @@
   with optional GitHub PR enrichment via `gh`. Stateless — no hooks, no stored data.
 - Defaults: window = since last working day (override `--since`); author = current git user
   (override `--all`). Privacy: `redact_pii` (default) or `raw`.
+- Verified 2026-07-15: scenarios 1–7 pass
