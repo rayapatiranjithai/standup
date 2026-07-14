@@ -43,21 +43,21 @@ Default: current user. `--all`: no author filter.
 
 ```bash
 ME=$(git config user.email); [ -z "$ME" ] && ME=$(git config user.name)
-# default:  git log --author="$ME" ...
-# --all:    omit --author
+AUTHOR_FILTER=(--author="$ME")   # default: current user only
+# --all: AUTHOR_FILTER=()        # no author filter — every author included
 ```
 
 ## 3. Git recipes (Yesterday / Today / Blockers inputs)
 
 ```bash
 # Yesterday: my in-window commits, subject + branch grouping
-git log --since="$SINCE" ${AUTHOR:+--author="$ME"} --pretty='%h%x09%s%x09%cI' --all
+git log --since="$SINCE" "${AUTHOR_FILTER[@]}" --pretty='%h%x09%s%x09%cI' --all
 # current branch (Today)
 git rev-parse --abbrev-ref HEAD           # prints HEAD if detached
 # uncommitted / staged work (Today)
 git status --porcelain
-# in-window diff for Blocker markers
-git log --since="$SINCE" ${AUTHOR:+--author="$ME"} -p --no-color
+# in-window diff for Blocker markers (same scope as Yesterday: author filter + all refs)
+git log --since="$SINCE" "${AUTHOR_FILTER[@]}" -p --no-color --all
 ```
 
 Group Yesterday commits by branch when derivable (`git branch --contains <hash>` is expensive; for
@@ -69,7 +69,7 @@ Detect: `command -v gh >/dev/null && gh auth status >/dev/null 2>&1`.
 
 ```bash
 # my merged PRs since the window (Yesterday)
-gh pr list --state merged --author "@me" --search "merged:>=$(date -v-${D}d '+%Y-%m-%d' 2>/dev/null || date -d "-${D} days" '+%Y-%m-%d')" --json number,title,mergedAt
+gh pr list --state merged --author "@me" --search "merged:>=${SINCE%% *}" --json number,title,mergedAt
 # my open PRs awaiting review (Blockers)
 gh pr list --state open --author "@me" --json number,title,reviewDecision
 ```
@@ -86,7 +86,7 @@ open PRs awaiting review from section 4.
 
 Apply (case-insensitive) to ALL assembled text before render when `privacy_mode` is `redact_pii`.
 Replace the match with the bracket token. Run specific patterns (email, key, JWT) before generic
-ones (TOKEN, PHONE); longer match wins on overlap.
+ones (TOKEN); longer match wins on overlap.
 
 | Token | Regex (ECMAScript) | Notes |
 |---|---|---|
@@ -97,6 +97,6 @@ ones (TOKEN, PHONE); longer match wins on overlap.
 | `[CARD]` | `\b(?:\d[ -]?){13,16}\b` | card-length digit runs |
 | `[SSN]` | `\b\d{3}-\d{2}-\d{4}\b` | US SSN shape |
 | `[IP]` | `\b(?:\d{1,3}\.){3}\d{1,3}\b` | IPv4 |
-| `[CREDENTIAL]` | `(?i)(password\|passwd\|secret\|api[_-]?key)\s*[:=]\s*\S+` | key/value secrets |
+| `[CREDENTIAL]` | `(password\|passwd\|secret\|api[_-]?key)\s*[:=]\s*\S+` | key/value secrets |
 
 Note: commit hashes are short (7–12 hex) and will NOT match `[TOKEN]` (32+); leave them intact.

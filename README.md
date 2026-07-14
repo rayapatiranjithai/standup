@@ -5,6 +5,7 @@ Assembles a copy-ready Yesterday/Today/Blockers standup from live git activity a
 ## Install
 
 ```
+# The marketplace catalog is hosted in the prompt-analyzer repo; this installs the standup plugin from it.
 /plugin marketplace add rayapatiranjithai/prompt-analyzer
 /plugin install standup@rayapatiranjithai-plugins
 ```
@@ -23,9 +24,9 @@ Generates a standup update with Yesterday, Today, and Blockers sections from you
 
 **Output sections:**
 
-- **Yesterday** — Commits since the specified time window (trust label: direct from git history).
-- **Today** — Active branches and PR status if `gh` CLI is available (trust label: current state).
-- **Blockers** — Flagged issues or stalled PRs from git notes or GitHub (trust label: manual annotations).
+- **Yesterday** — Ground truth: real commits since the window, plus merged PRs if `gh` is available. Never fabricated.
+- **Today** _(inferred — confirm/edit)_ — Guessed from the current branch name and uncommitted/staged/WIP work. Not a source of truth; you're expected to review and edit it.
+- **Blockers** _(scanned — confirm/edit)_ — Scanned from `TODO`/`FIXME`/`BLOCKED`/`HACK`/`WIP` markers in the in-window diff, plus your open PRs awaiting review if `gh` is available. Also expected to be reviewed and edited.
 
 Note: GitHub PR enrichment requires the `gh` CLI to be installed and authenticated. Without it, standup uses git history only.
 
@@ -44,4 +45,4 @@ Configure privacy and behavior via `.standup/config.json`:
   - `raw` — Preserve all text.
   - `redact_pii` — Mask emails, keys, IPs, and names (default).
 
-All data persists only for the duration of your session — nothing is stored or sent anywhere.
+The plugin persists nothing: it reads git (and optionally `gh`) fresh on every run, with no cache or session state.
