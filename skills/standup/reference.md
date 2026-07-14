@@ -27,6 +27,13 @@ SINCE=$(date -v-${D}d '+%Y-%m-%d 00:00:00' 2>/dev/null || date -d "-${D} days" '
 - ISO date `YYYY-MM-DD` → use as `--since="YYYY-MM-DD 00:00:00"`.
 - anything else → print accepted formats and stop (see SKILL error table).
 
+**Future-dated window guard:** after resolving `SINCE`, compare it to the current date/time
+(`date '+%Y-%m-%d %H:%M:%S'`). If `SINCE` is later than now, the window is empty by definition —
+skip the `git log` calls in §3 for Yesterday and go straight to the "no in-window commits" path
+(SKILL.md Rules). Do not rely on `git log --since` alone to report zero results here: some git
+builds fail to filter dates far enough in the future (observed: years beyond ~2100) and return the
+full history instead of nothing.
+
 ## 2. Author resolution
 
 Default: current user. `--all`: no author filter.
