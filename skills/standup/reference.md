@@ -22,10 +22,21 @@ SINCE=$(date -v-${D}d '+%Y-%m-%d 00:00:00' 2>/dev/null || date -d "-${D} days" '
 ```
 
 `--since=<spec>` overrides. Accept:
-- relative duration: `3d`, `12h`, `1w` → pass straight to `git log --since="3 days ago"` style
-  (translate `d`→`days`, `h`→`hours`, `w`→`weeks`).
-- ISO date `YYYY-MM-DD` → use as `--since="YYYY-MM-DD 00:00:00"`.
+- relative duration: `Nd`, `Nh`, `Nw` → normalize to an absolute timestamp (same shape as the
+  default window above), not passed as a phrase to git. Parse the number `N` and the unit, then
+  compute with BSD `date` first, GNU fallback: `d`→days (`-v-Nd` / GNU `-N days`), `h`→hours
+  (`-v-NH` / GNU `-N hours`), `w`→weeks (`-v-Nw` / GNU `-N weeks`). Example for `3d`:
+  ```bash
+  N=3
+  SINCE=$(date -v-${N}d '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date -d "-${N} days" '+%Y-%m-%d %H:%M:%S')
+  ```
+  (for `12h`, use `-v-12H` / `-d "-12 hours"`; for `1w`, use `-v-1w` / `-d "-1 weeks"`).
+- ISO date `YYYY-MM-DD` → set `SINCE="YYYY-MM-DD 00:00:00"`.
 - anything else → print accepted formats and stop (see SKILL error table).
+
+All three forms leave `$SINCE` as an absolute `YYYY-MM-DD HH:MM:SS` timestamp, so every downstream
+use — the git-log `--since` calls in §3, the future-date guard below, and the `${SINCE%% *}` date
+extraction in §4 — sees a consistent, date-prefixed value.
 
 **Future-dated window guard:** after resolving `SINCE`, compare it to the current date/time
 (`date '+%Y-%m-%d %H:%M:%S'`). If `SINCE` is later than now, the window is empty by definition —
